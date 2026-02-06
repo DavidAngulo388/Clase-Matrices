@@ -44,6 +44,9 @@ Matriz::Matriz(int n, int m) {
 // Constructor de copias
 // TODO: Constructor de copias, pues Matriz A = B, será un caos.
 
+Matriz::Matriz(const Matriz &v) : renglones(0), columnas(0), entradas(nullptr) {
+  *this = v;
+}
 // Destructor
 Matriz::~Matriz() {
   for (int i = 0; i < renglones; ++i) {
@@ -52,11 +55,61 @@ Matriz::~Matriz() {
   delete[] entradas;
 }
 
-void Matriz::Imprimir() {
+/* -------------------------------------------------- */
+void Matriz::Imprimir() const {
   for (int i = 0; i < renglones; ++i) {
     for (int j = 0; j < columnas; ++j) {
       cout << entradas[i][j] << " ";
     }
     cout << endl;
   }
+}
+
+Matriz &Matriz::operator=(const Matriz &m) {
+  if (this == &m)
+    return *this;
+
+  // Primero borramos todo el objeto
+  for (int i = 0; i < renglones; ++i) {
+    delete[] entradas[i];
+  }
+  delete[] entradas;
+
+  // Empezamos a copiar todo el objeto:
+  renglones = m.renglones;
+  columnas = m.columnas;
+
+  // Volvemos a pedir memoria
+  try {
+    entradas = new float *[renglones];
+    for (int i = 0; i < renglones; ++i) {
+      entradas[i] = new float[columnas];
+    }
+
+    for (int i = 0; i < renglones; ++i) {
+      for (int j = 0; j < columnas; ++j) {
+        entradas[i][j] = m.entradas[i][j];
+      }
+    }
+
+  } catch (std::bad_alloc &) {
+    throw "Error en la asignaci\242n de memoria.";
+  }
+
+  return *this;
+}
+
+Matriz Matriz::operator+(Matriz m) {
+  if (renglones != m.renglones || columnas != m.columnas) {
+    throw "Error: Operaci\162n fallida. Dimensiones distintas.";
+  }
+
+  Matriz resultante;
+  for (int i = 0; i < renglones; ++i) {
+    for (int j = 0; j < columnas; ++j) {
+      continue;
+    }
+  }
+
+  return resultante;
 }
