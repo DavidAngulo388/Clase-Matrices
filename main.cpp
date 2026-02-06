@@ -1,9 +1,8 @@
-#include <iostream>
-
-using namespace std;
+#include "Matriz.hpp"
 
 int main() {
-  cout << "hola mundo" << endl;
+  Matriz m(4, 10);
+  m.Imprimir();
 
   return 0;
 }
