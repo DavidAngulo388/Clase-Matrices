@@ -1,2 +1,2 @@
 # Clase-Matrices
-Clase para crear, operar y manejar matrices
+Clase para crear, operar y manejar matrices en 'C++'.
