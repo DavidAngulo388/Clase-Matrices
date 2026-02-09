@@ -44,7 +44,21 @@ int main()
         Matriz m4(3, 3);
         cin >> m4;
         cout << endl << m4 << endl;
-        cout << "Intercambiando renglon 1 con 3:";
+
+        Matriz m4_inversa = m4.Inversa();
+
+        cout << "\n\nREDIMENSIONAMIENTO\n\n";
+
+        Matriz mat_prueba_redim(10, 10, 3);
+        cout << mat_prueba_redim;
+        mat_prueba_redim.Redimensionar(5, 5);
+        cout << mat_prueba_redim;
+        mat_prueba_redim.Redimensionar(10, 10);
+        cout << mat_prueba_redim;
+        mat_prueba_redim.Redimensionar(5, 2);
+        cout << mat_prueba_redim;
+        mat_prueba_redim.Redimensionar(15, 6);
+        cout << mat_prueba_redim;
 
     } catch (const char *mensaje) {
         cerr << mensaje << endl;

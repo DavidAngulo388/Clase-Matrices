@@ -1,8 +1,10 @@
 #include "Matriz.hpp"
+#include <cmath>
 #include <iostream>
 
 using std::cout;
 //  using std::cin;
+using std::abs;
 using std::endl;
 
 /* ---- CONSTRUCTORES ---- */
@@ -53,7 +55,7 @@ Matriz::~Matriz()
     }
     delete[] entrada;
 }
-
+// Operador de asigación
 Matriz &Matriz::operator=(const Matriz &m)
 {
     if (this == &m)
@@ -184,13 +186,110 @@ const float *Matriz::operator[](int i) const
 }
 
 /* ---- MÉTODOS PARA ESCALONAR (para det/inversa)---- */
-Matriz Matriz::mat_aumentada() const
+Matriz Matriz::Inversa() const
 {
+    if (abs(Determinante()) < 1e-5) {
+        throw "Error: Determinante = 0. No tiene inversa.";
+    }
     int renglones = this->renglones;
     int columnas = this->columnas;
-    Matriz m(2 * renglones, columnas, 3);
+    Matriz m(renglones, 2 * columnas, 0);
 
-    return m;
+    /* -- Matriz aumentada -- */
+    // Copiar valores de la matriz origianl
+    for (int i = 0; i < renglones; ++i) {
+        for (int j = 0; j < columnas; ++j) {
+            m.entrada[i][j] = entrada[i][j];
+        }
+    }
+    // Colocar la identidad al lado
+    for (int i = 0; i < renglones; ++i) {
+        m.entrada[i][columnas + i] = 1;
+    }
+
+    /* Calculamos la inversa sobre 'm' (matriz aumentada) --*/
+    // Llevamos el índice mayor hasta arriba:
+    for (int i = 0; i < renglones; ++i) {
+        int indice_mayor = i;
+        for (int j = i + 1; j < renglones; ++j) {
+            if (abs(m.entrada[indice_mayor][i]) < abs(m.entrada[j][i])) {
+                indice_mayor = j;
+            }
+        }
+        m.intercambiar_renglones(i, indice_mayor);
+        for (int k = i + 1; k < renglones; ++k) {
+
+            float escalar = -m.entrada[k][i] / m.entrada[i][i];
+            m.sumar_renglones(k, i, escalar);
+        }
+    }
+
+    for (int i = renglones - 1; i >= 0; --i) {
+        for (int j = i - 1; j >= 0; --j) {
+            float escalar = -m.entrada[j][i] / m.entrada[i][i];
+            m.sumar_renglones(j, i, escalar);
+        }
+    }
+
+    for (int i = 0; i < renglones; ++i) {
+        m.renglon_escalar(i, 1 / m.entrada[i][i]);
+    }
+    Matriz inversa(renglones, columnas, 0);
+
+    for (int i = 0; i < renglones; ++i) {
+        for (int j = 0; j < columnas; ++j) {
+            inversa.entrada[i][j] = m.entrada[i][j + columnas];
+        }
+    }
+
+    return inversa;
+}
+
+float Matriz::Determinante() const
+{
+    if (renglones != columnas) {
+        throw "Error: La matriz no es cuadrada. No tiene determinante";
+    }
+
+    Matriz m(renglones, columnas, 0);
+
+    /* -- Matriz aumentada -- */
+    // Copiar valores de la matriz origianl
+    for (int i = 0; i < renglones; ++i) {
+        for (int j = 0; j < columnas; ++j) {
+            m.entrada[i][j] = entrada[i][j];
+        }
+    }
+
+    /* -- Escalonamos UNICAMENTE abajo (Gauss)*/
+    // Llevamos el índice mayor hasta arriba:
+    int contador_intercambios = 0;
+    for (int i = 0; i < renglones; ++i) {
+        int indice_mayor = i;
+        for (int j = i + 1; j < renglones; ++j) {
+            if (abs(m.entrada[indice_mayor][i]) < abs(m.entrada[j][i])) {
+                indice_mayor = j;
+            }
+        }
+        if (i != indice_mayor) {
+            m.intercambiar_renglones(i, indice_mayor);
+            ++contador_intercambios;
+        }
+
+        if (abs(m.entrada[i][i]) < 1e-4) {
+            return 0;
+        }
+        for (int k = i + 1; k < renglones; ++k) {
+
+            float escalar = -m.entrada[k][i] / m.entrada[i][i];
+            m.sumar_renglones(k, i, escalar);
+        }
+    }
+    float det = 1;
+    for (int i = 0; i < renglones; ++i) {
+        det *= m.entrada[i][i];
+    }
+    return det * std::pow(-1, contador_intercambios);
 }
 
 /* -------------------------------------------------- */
@@ -206,12 +305,21 @@ void Matriz::intercambiar_renglones(int a, int b)
 }
 
 /* -------------------------------------------------- */
-void Matriz::renglon_escalar() {}
+void Matriz::renglon_escalar(int ren, float n)
+{
+    for (int i = 0; i < columnas; ++i) {
+        entrada[ren][i] *= n;
+    }
+}
 
 /* -------------------------------------------------- */
-void Matriz::sumar_renglones() {}
 
-/* -------------------------------------------------- */
+void Matriz::sumar_renglones(int ren1, int ren2, float n)
+{
+    for (int i = 0; i < columnas; ++i) {
+        entrada[ren1][i] += n * entrada[ren2][i];
+    }
+}
 
 /* ----FUNCIONES AMIGAS--- */
 Matriz operator*(float escalar, Matriz m)
@@ -249,4 +357,51 @@ std::istream &operator>>(std::istream &in, Matriz &m)
         }
     }
     return in;
+}
+
+/* ---------- MÉTODO DE REDIMENSIONAMIENTO ---------- */
+void Matriz::EstablecerRenglones(int n)
+{
+    if (n <= 0)
+        throw "Error: Val\242r inv\240lida.";
+    renglones = n;
+}
+
+void Matriz::EstablecerColumnas(int n)
+{
+    if (n <= 0)
+        throw "Error: Val\242r inv\240lida.";
+    columnas = n;
+}
+
+void Matriz::Redimensionar(int nuevoRenglon, int nuevaColumna)
+{
+    if (nuevoRenglon <= 0 || nuevaColumna <= 0)
+        throw "Error: Dimensi\162n inv\240lida";
+    if (nuevoRenglon == renglones && nuevaColumna == columnas)
+        return;
+
+    Matriz MatrizRedim(nuevoRenglon, nuevaColumna, 0);
+    int filas_minimo = (renglones < nuevoRenglon) ? renglones : nuevoRenglon;
+    int columnas_minimo = (columnas < nuevaColumna) ? columnas : nuevaColumna;
+    for (int i = 0; i < filas_minimo; ++i) {
+        for (int j = 0; j < columnas_minimo; ++j) {
+            MatrizRedim[i][j] = entrada[i][j];
+        }
+    }
+
+    // Borramos la origianl
+    for (int i = 0; i < renglones; ++i) {
+        delete[] entrada[i];
+    }
+    delete[] entrada;
+
+    renglones = MatrizRedim.renglones;
+    columnas = MatrizRedim.columnas;
+    entrada = MatrizRedim.entrada;
+
+    // Hacemos esto para evitar que el destructor se vuelva maniaquito
+    MatrizRedim.entrada = nullptr;
+    MatrizRedim.renglones = 0;
+    MatrizRedim.columnas = 0;
 }

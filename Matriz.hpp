@@ -16,6 +16,8 @@ class Matriz
     /*-------------------------*/
 
     /* ---- MÉTODOS DE LA CLASE ---- */
+
+    // TODO: De quedar tiempo, mejorar la impresión (en general, muy fea :( )
     void Imprimir() const;
     Matriz operator+(Matriz m) const;
     Matriz operator-(Matriz m) const;
@@ -27,6 +29,12 @@ class Matriz
     // TODO: Evitar que se salga de rango en COLUMNAS
     float *operator[](int i);             // Para cambiar un dato
     const float *operator[](int i) const; // Para leer un dato
+    Matriz Inversa() const;
+    float Determinante() const;
+
+    void EstablecerRenglones(int n);
+    void EstablecerColumnas(int n);
+    void Redimensionar(int n, int m);
 
   private:
     // Una matriz se representa con dimensiónes n*m
@@ -35,8 +43,7 @@ class Matriz
     float **entrada;
 
     // Métodos de utilidad para escalonar
-    Matriz mat_aumentada() const;
     void intercambiar_renglones(int a, int b);
-    void renglon_escalar();
-    void sumar_renglones();
+    void renglon_escalar(int ren, float n);
+    void sumar_renglones(int ren1, int ren2, float n = 1);
 };
