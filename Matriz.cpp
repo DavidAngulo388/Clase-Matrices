@@ -1,15 +1,19 @@
 #include "Matriz.hpp"
 #include <cmath>
+#include <iomanip>
 #include <iostream>
 
-using std::cout;
-//  using std::cin;
 using std::abs;
+using std::cout;
 using std::endl;
+using std::fixed;
+using std::setprecision;
+using std::setw;
 
 /* ---- CONSTRUCTORES ---- */
 
 // Constructor
+// TODO: Posible fallo en asigación de memoria y que se pierda todo.
 Matriz::Matriz(int n, int m, float valor)
 {
     if (n <= 0 || m <= 0) {
@@ -334,7 +338,9 @@ Matriz operator*(float escalar, Matriz m)
 }
 
 /* ----FUNCIONES OPERADORAS AMIGAS--- */
-std::ostream &operator<<(std::ostream &out, Matriz m)
+// TODO: Descomentar esta cosa
+/*
+iostreamd::ostream &operator<<(std::ostream &out, Matriz m)
 {
     out << endl;
     for (int i = 0; i < m.renglones; ++i) {
@@ -346,6 +352,7 @@ std::ostream &operator<<(std::ostream &out, Matriz m)
     out << "\b";
     return out;
 }
+*/
 
 /* -------------------------------------------------- */
 std::istream &operator>>(std::istream &in, Matriz &m)
@@ -404,4 +411,95 @@ void Matriz::Redimensionar(int nuevoRenglon, int nuevaColumna)
     MatrizRedim.entrada = nullptr;
     MatrizRedim.renglones = 0;
     MatrizRedim.columnas = 0;
+}
+
+//******************************//
+std::ostream &operator<<(std::ostream &out, const Matriz &mat)
+{
+    // 1. Alias para facilitar la lectura del código original
+    // Usamos 'const' para asegurar que no modificamos la matriz al imprimirla
+    float **arreglo = mat.entrada;
+    int m = mat.renglones;
+    int n = mat.columnas;
+
+    int max_ancho = 1; // Mínimo 1 dígito
+
+    // 2. Calcular ancho máximo de columnas
+    for (int i = 0; i < m; ++i) {
+        for (int j = 0; j < n; ++j) {
+            double valor = arreglo[i][j];
+            bool es_entero = (floor(valor) == valor);
+
+            int parte_entera = static_cast<int>(valor);
+            int digitos;
+
+            if (parte_entera == 0) {
+                digitos = 1;
+            } else if (parte_entera < 0) {
+                // Cuenta el signo y usa valor absoluto para log10
+                digitos = static_cast<int>(floor(log10(abs(parte_entera)))) + 2;
+            } else {
+                digitos = static_cast<int>(floor(log10(parte_entera))) + 1;
+            }
+
+            // Ajustar ancho
+            int ancho_actual = digitos;
+            if (!es_entero) {
+                ancho_actual += 3; // +1 punto, +2 decimales
+            }
+            if (ancho_actual > max_ancho) {
+                max_ancho = ancho_actual;
+            }
+        }
+    }
+
+    // Asegurar ancho mínimo
+    if (max_ancho < 5) {
+        max_ancho = 5;
+    }
+
+    // 3. Calcular ancho total para los bordes
+    // (Asumimos impresión estándar sin barra intermedia de matriz aumentada)
+    int espacios_entre_nums = n - 1;
+    int ancho_contenido = (n * max_ancho) + espacios_entre_nums;
+
+    // --- IMPRESIÓN ---
+
+    // 4. Borde Superior
+    out << ESI;
+    for (int i = 0; i < ancho_contenido; ++i)
+        out << " ";
+    out << ESD << endl;
+
+    // 5. Contenido
+    for (int i = 0; i < m; ++i) {
+        out << BARRA_V; // Borde izquierdo
+
+        for (int j = 0; j < n; ++j) {
+            double valor = arreglo[i][j];
+            bool es_entero = (floor(valor) == valor);
+
+            if (es_entero) {
+                out << setw(max_ancho) << static_cast<int>(valor);
+            } else {
+                out << fixed << setprecision(2) << setw(max_ancho) << valor;
+            }
+
+            // Espacio entre columnas (si no es la última)
+            if (j < n - 1) {
+                out << " ";
+            }
+        }
+        out << BARRA_V << endl; // Borde derecho y salto de línea
+    }
+
+    // 6. Borde Inferior
+    out << EII;
+    for (int i = 0; i < ancho_contenido; ++i)
+        out << " ";
+    out << EID << endl;
+
+    // IMPORTANTE: Retornar el stream para permitir encadenamiento (cout << m <<
+    // endl;)
+    return out;
 }

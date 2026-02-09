@@ -1,9 +1,13 @@
 #pragma once
 #include <iostream>
 
+enum { ESI = 218, BARRA = 196, ESD = 191, BARRA_V = 179, EII = 192, EID = 217 };
+enum { TRANSPUESTA = 1, AUMENTADA };
+
 class Matriz
 {
-    friend std::ostream &operator<<(std::ostream &out, Matriz m);
+    // friend std::ostream &operator<<(std::ostream &out, Matriz m);
+    friend std::ostream &operator<<(std::ostream &out, const Matriz &mat);
     friend Matriz operator*(float escalar, Matriz m);
     friend std::istream &operator>>(std::istream &entrada, Matriz &m);
 
