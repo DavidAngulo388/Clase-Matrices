@@ -465,15 +465,13 @@ std::ostream &operator<<(std::ostream &out, const Matriz &mat)
 
     // --- IMPRESIÓN ---
 
-    // 4. Borde Superior
-    out << ESI;
+    out << (char)ESI;
     for (int i = 0; i < ancho_contenido; ++i)
         out << " ";
-    out << ESD << endl;
+    out << (char)ESD << endl;
 
-    // 5. Contenido
     for (int i = 0; i < m; ++i) {
-        out << BARRA_V; // Borde izquierdo
+        out << (char)BARRA_V;
 
         for (int j = 0; j < n; ++j) {
             double valor = arreglo[i][j];
@@ -490,16 +488,13 @@ std::ostream &operator<<(std::ostream &out, const Matriz &mat)
                 out << " ";
             }
         }
-        out << BARRA_V << endl; // Borde derecho y salto de línea
+        out << (char)BARRA_V << endl; // Borde derecho y salto de línea
     }
 
-    // 6. Borde Inferior
-    out << EII;
+    out << (char)EII;
     for (int i = 0; i < ancho_contenido; ++i)
         out << " ";
-    out << EID << endl;
+    out << (char)EID << endl;
 
-    // IMPORTANTE: Retornar el stream para permitir encadenamiento (cout << m <<
-    // endl;)
     return out;
 }
