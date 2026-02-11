@@ -1,3 +1,10 @@
+/**
+ * \file  Matriz.cpp
+ * En este archivo se encuentra la definci&oacute;n de la clase Matriz, los m&eacute;todos y los atributos.
+ * \author Angulo Gil, David Armando
+        Espinoza Hern&aacute;ndez, Isaac
+ * \date 10/02/2026
+ */
 #include "Matriz.hpp"
 #include <cmath>
 #include <iomanip>
@@ -17,7 +24,7 @@ using std::setw;
 Matriz::Matriz(int n, int m, float valor)
 {
     if (n <= 0 || m <= 0) {
-        throw "Dimensi\162n inv\160lida";
+        throw "Dimensi\242n inv\240lida";
     }
 
     renglones = n;
@@ -35,7 +42,7 @@ Matriz::Matriz(int n, int m, float valor)
         }
 
     } catch (std::bad_alloc &) {
-        throw "Error en la asigaci\162n de memoria";
+        throw "Error en la asigaci\242n de memoria";
     }
 
     // Llenamos la matriz de puros ceros (menos batalla que dar la identidad).
@@ -99,7 +106,7 @@ Matriz &Matriz::operator=(const Matriz &m)
 Matriz Matriz::operator+(Matriz m) const
 {
     if (renglones != m.renglones || columnas != m.columnas) {
-        throw "Error: Operaci\162n fallida. Dimensiones distintas.";
+        throw "Error: Operaci\242n fallida. Dimensiones distintas.";
     }
 
     Matriz matriz_suma(renglones, columnas);
@@ -116,7 +123,7 @@ Matriz Matriz::operator+(Matriz m) const
 Matriz Matriz::operator-(Matriz m) const
 {
     if (renglones != m.renglones || columnas != m.columnas) {
-        throw "Error: Operaci\162n fallida. Dimensiones distintas.";
+        throw "Error: Operaci\242n fallida. Dimensiones distintas.";
     }
 
     Matriz matriz_resta(renglones, columnas);
@@ -133,7 +140,7 @@ Matriz Matriz::operator-(Matriz m) const
 Matriz Matriz::operator*(Matriz m) const
 {
     if (columnas != m.renglones) {
-        throw "Error: Operaci\162n fallida. Dimensiones distintas.";
+        throw "Error: Operaci\242n fallida. Dimensiones distintas.";
     }
 
     Matriz matriz_mult(renglones, m.columnas);
@@ -175,7 +182,7 @@ Matriz Matriz::Transpuesta() const
 float *Matriz::operator[](int i)
 {
     if (i < 0 || i > renglones) {
-        throw "Indice de rengln fuera de rango.";
+        throw "Indice de rengl\242n fuera de rango.";
     }
     return entrada[i];
 }
@@ -184,9 +191,18 @@ float *Matriz::operator[](int i)
 const float *Matriz::operator[](int i) const
 {
     if (i < 0 || i > renglones) {
-        throw "Indice de rengln fuera de rango.";
+        throw "Indice de rengl\242n fuera de rango.";
     }
     return entrada[i];
+}
+
+int Matriz::ObtenerRenglones()
+{
+    return renglones;
+}
+int Matriz::ObtenerColumnas()
+{
+    return columnas;
 }
 
 /* ---- MÉTODOS PARA ESCALONAR (para det/inversa)---- */
@@ -359,32 +375,28 @@ std::istream &operator>>(std::istream &in, Matriz &m)
 {
     for (int i = 0; i < m.renglones; ++i) {
         for (int j = 0; j < m.columnas; ++j) {
-            cout << "Introduzca la entrada (" << i << ", " << j << "): ";
+            cout << "Introduzca la entrada (" << i+1 << ", " << j+1 << "): ";
             in >> m.entrada[i][j];
+            while(in.fail()){
+                in.clear();
+                in.ignore(std::numeric_limits<int>::max(),'\n');
+
+                cout << "Introduzca la entrada (" << i+1 << ", " << j+1 << "): ";
+                in >> m.entrada[i][j];
+            }
         }
     }
+
     return in;
 }
 
 /* ---------- MÉTODO DE REDIMENSIONAMIENTO ---------- */
-void Matriz::EstablecerRenglones(int n)
-{
-    if (n <= 0)
-        throw "Error: Val\242r inv\240lida.";
-    renglones = n;
-}
 
-void Matriz::EstablecerColumnas(int n)
-{
-    if (n <= 0)
-        throw "Error: Val\242r inv\240lida.";
-    columnas = n;
-}
 
-void Matriz::Redimensionar(int nuevoRenglon, int nuevaColumna)
+void Matriz::Redimensionar(int nuevoRenglon,int nuevaColumna)
 {
     if (nuevoRenglon <= 0 || nuevaColumna <= 0)
-        throw "Error: Dimensi\162n inv\240lida";
+        throw "Error: Dimensi\242n inv\240lida";
     if (nuevoRenglon == renglones && nuevaColumna == columnas)
         return;
 
